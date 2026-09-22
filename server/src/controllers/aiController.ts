@@ -6,6 +6,7 @@ import { rankProperties } from '../services/ai/nlu.js';
 import { captureLeadFromCriteria } from '../services/ai/leadCapture.js';
 import { ApiError } from '../middleware/error.js';
 import type { ExtractedCriteria, PropertyDoc } from '../types.js';
+import { saveUnavailableRequirement } from "../services/PropertyAvalability.js"
 
 /** Contextual follow-up suggestions based on what the criteria are still missing. */
 function buildSuggestions(c: ExtractedCriteria): string[] {
@@ -40,6 +41,13 @@ export async function propertySearch(req: Request, res: Response, next: NextFunc
     }
     const candidates = await fetchCandidateProperties();
     const results = rankProperties(criteria, candidates, 12, 40);
+    if (results.length === 0) {
+      await saveUnavailableRequirement({
+        customerId: req.user!._id,
+        customerName: req.user!.name,
+        criteria,
+      });
+    }
     res.json({ criteria, results });
   } catch (err) {
     next(err);

@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { FURNISHING } from '../config/constants.js';
 
 const LeadSchema = new Schema(
   {
@@ -17,10 +18,20 @@ const LeadSchema = new Schema(
       default: 'BUY',
     },
     propertyType: { type: String, enum: ['1BHK', '2BHK', '3BHK', '4BHK', 'PLOT', 'VILLA', 'OFFICE', ''] },
+    preferredCity:String,
     preferredLocations: { type: [String], default: [] },
     budgetMin: Number,
     budgetMax: Number,
     timeline: String,
+    //parking:{
+    //  type:Boolean,
+    //  default:false,
+    //}
+    //furnishing: {
+    //  type:string,
+    //  enum:['UNFURNISHED','SEMI_FURNISHED','FULLY_FURNISHED',""],
+    //  default:"",
+    //}
     requirements: { type: [String], default: [] },
     leadScore: { type: Number, default: 0, index: true },
     leadTemperature: { type: String, enum: ['HOT', 'WARM', 'NURTURE', 'COLD'], default: 'COLD', index: true },

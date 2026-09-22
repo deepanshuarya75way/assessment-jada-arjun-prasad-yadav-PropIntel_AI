@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { Property } from '../models/Property.js';
 import { ApiError } from '../middleware/error.js';
+import { checkPropertyForLeads } from '../services/PropertyAvalability.js'
 
 // Filters per spec §52: location, price, bedrooms, type, area, amenities, parking, furnishing, status
 export async function listProperties(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -82,6 +83,11 @@ export async function createProperty(req: Request, res: Response, next: NextFunc
       ...body,
       assignedAgent: body.assignedAgent ?? undefined,
     });
+    if (property.status === "AVAILABLE") {
+    await checkPropertyForLeads(
+      property._id.toString()
+    );
+  }
     res.status(201).json({ property });
   } catch (err) {
     next(err);
@@ -101,6 +107,11 @@ export async function updateProperty(req: Request, res: Response, next: NextFunc
     }
     const property = await Property.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
     if (!property) throw new ApiError(404, 'Property not found', 'NOT_FOUND');
+    if (property?.status === "AVAILABLE") {
+    await checkPropertyForLeads(
+      property._id.toString()
+    );
+  }
     res.json({ property });
   } catch (err) {
     next(err);
